@@ -121,7 +121,7 @@ public class JiraCreateIssueNotifier extends Notifier {
         }
 
         if (currentBuildResult!=Result.ABORTED && previousBuild!=null) {
-            if (currentBuildResult==Result.FAILURE) {
+            if (currentBuildResult==Result.FAILURE || currentBuildResult==Result.UNSTABLE) {
                 currentBuildResultFailure(build,listener,previousBuildResult,filename,environmentVariable);
             }
 
@@ -147,7 +147,7 @@ public class JiraCreateIssueNotifier extends Notifier {
 
         EnvVars environmentVariable = build.getEnvironment(TaskListener.NULL);
         
-        String buildURL=environmentVariable.get("BUILD_URL");
+        String buildURL=build.getUrl();
         String buildNumber=environmentVariable.get("BUILD_NUMBER");
         String jobName=environmentVariable.get("JOB_NAME");
         String jenkinsURL=Jenkins.getInstance().getRootUrl();
@@ -335,7 +335,7 @@ public class JiraCreateIssueNotifier extends Notifier {
 
         String buildURL=environmentVariable.get("BUILD_URL");
         String buildNumber=environmentVariable.get("BUILD_NUMBER");
-        if (previousBuildResult==Result.FAILURE) {
+        if (previousBuildResult==Result.FAILURE || previousBuildResult==Result.UNSTABLE) {
             String comment="- Job is still failing."+"\n"+"- Failed run : ["+
                     buildNumber+"|"+buildURL+"]"+"\n"+ "** [console log|"+buildURL.concat("console")+"]";
             //Get the issue-id which was filed when the previous built failed
@@ -394,7 +394,7 @@ public class JiraCreateIssueNotifier extends Notifier {
         String buildURL=environmentVariable.get("BUILD_URL");
         String buildNumber=environmentVariable.get("BUILD_NUMBER");
 
-        if (previousBuildResult==Result.FAILURE || previousBuildResult==Result.SUCCESS) {
+        if (previousBuildResult==Result.FAILURE || previousBuildResult==Result.UNSTABLE || previousBuildResult==Result.SUCCESS) {
             String comment="- Job is not falling but the issue is still open."+"\n"+"- Passed run : ["+
                            buildNumber+"|"+buildURL+"]"+"\n"+ "** [console log|"+buildURL.concat("console")+"]";
             String issueId=getIssue(filename);
